@@ -8,11 +8,26 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "vite"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.105.4",
+    "@supabase/supabase-js": "^2.106.2",
     "axios": "^1.16.1",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "i": "^0.3.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vickykriger/RutaVerde_Backend.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/vickykriger/RutaVerde_Backend/issues"
+  },
+  "homepage": "https://github.com/vickykriger/RutaVerde_Backend#readme",
+  "devDependencies": {
+    "vite": "^8.0.16"
   }
 }
