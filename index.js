@@ -2,21 +2,6 @@ import { supabase } from './supabase.js';
 import {registro } from './registro.js';
 import {login} from './login.js';
 
-async function listarRoles() {
-    const { data, error } = await supabase
-        .from('Roles')
-        .select('*');
-
-    if (error) {
-        console.error('Error al obtener los roles:', error.message);
-        return;
-    }
-
-    console.table(data);
-}
-
-document.getElementById('btnRoles').addEventListener('click', listarRoles);
-
 async function manejarRegistro() {
     const nombre = document.getElementById('regNombre').value;
     const email = document.getElementById('regEmail').value;

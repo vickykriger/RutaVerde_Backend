@@ -3,7 +3,6 @@ import { supabase } from './supabase.js';
 async function registro(nombre, email, contrasenia, region) {
     console.log("Enviando datos a Supabase...", { nombre, email, region });
     const fechaHoraActual = new Date();
-    console.log(fechaHoraActual);
     const { data, error } = await supabase
         .from('Usuarios')
         .insert([
