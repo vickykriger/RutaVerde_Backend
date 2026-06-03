@@ -2,7 +2,8 @@ import { supabase } from './supabase.js';
 
 async function registro(nombre, email, contrasenia, region) {
     console.log("Enviando datos a Supabase...", { nombre, email, region });
-    
+    const fechaHoraActual = new Date();
+    console.log(fechaHoraActual);
     const { data, error } = await supabase
         .from('Usuarios')
         .insert([
@@ -10,6 +11,7 @@ async function registro(nombre, email, contrasenia, region) {
                 nombreC: nombre,
                 email: email,
                 contrasena: contrasenia, 
+                fechaR: fechaHoraActual,
                 id_rol: 1, 
                 id_region: region
             }

@@ -4,24 +4,24 @@ export async function login(email, contrasenia) {
     try {
         const { data, error } = await supabase
             .from('Usuarios')
-            .select('id_usuario, nombreC, email, id_rol') // Traemos los datos necesarios (evita traer la contraseña de vuelta)
+            .select('*')
             .eq('email', email)
-            .eq('contrasena', contrasenia) // Nota: En tu BD dice 'contrasena' sin la 'ñ'
-            .single(); // Esperamos un único resultado
+            .eq('contrasena', contrasenia)
+            .single();
 
         if (error) {
-            // Si no encuentra el usuario o las credenciales no coinciden, Supabase suele lanzar un error PGRST116
-            if (error.code === 'PGRST116') {
-                return { success: false, message: 'Credenciales incorrectas.' };
-            }
-            throw error;
+            console.error('Error en el login:', error.message);
+            alert('Correo o contraseña incorrectos.');
+            return null;
         }
 
-        // Si todo sale bien, retornamos los datos del usuario logueado
-        return { success: true, user: data };
+        console.log('Inicio de sesión exitoso:', data);
+        alert(`¡Bienvenido/a de nuevo, ${data.nombreC}!`);
+        
+        return data;
 
-    } catch (error) {
-        console.error('Error en el proceso de login:', error.message);
-        return { success: false, message: 'Ocurrió un error en el servidor.' };
+    } catch (err) {
+        console.error('Error inesperado:', err);
+        return null;
     }
 }
