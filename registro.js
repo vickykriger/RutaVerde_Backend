@@ -7,6 +7,17 @@ async function validar(email, contrasenia) {
         return { valido: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
     }
 
+    if (contrasenia.includes(' ')) {
+        console.error('Error: La contraseña no puede contener espacios.');
+        return { valido: false, error: 'La contraseña no puede contener espacios.' };
+    }
+
+    // Validar comas en la contraseña
+    if (contrasenia.includes(',')) {
+        console.error('Error: La contraseña no puede contener comas.');
+        return { valido: false, error: 'La contraseña no puede contener comas (,).' };
+    }
+
     const { data, error } = await supabase
         .from('Usuarios')
         .select('email')
@@ -15,6 +26,17 @@ async function validar(email, contrasenia) {
     if (error) {
         console.error('Error al verificar el email en Supabase:', error.message);
         return { valido: false, error: 'Error de conexión al verificar el email.' };
+    }
+
+    if (email.includes(' ')) {
+        console.error('Error: El correo electrónico no puede contener espacios.');
+        return { valido: false, error: 'El correo electrónico no puede contener espacios.' };
+    }
+
+    // Validar comas en el email
+    if (email.includes(',')) {
+        console.error('Error: El correo electrónico no puede contener comas.');
+        return { valido: false, error: 'El correo electrónico no puede contener comas (,).' };
     }
 
     if (data && data.length > 0) {
