@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruta Verde - Autenticación</title>
+    <title>Ruta Verde - Autenticación y Baldosas</title>
     <link rel="icon" href="data:,">
 </head>
 <body>
@@ -27,6 +27,35 @@
     <input type="password" id="loginContrasena" placeholder="Contraseña">
 
     <button id="btnIngresar">Ingresar Usuario</button>
+
+    <hr> <h2>Subir Baldosa</h2>
+    <div>
+        <label for="input-nombre-planta">Planta:</label><br>
+        <input type="text" id="input-nombre-planta" placeholder="Nombre de la planta"><br><br>
+
+        <label for="select-region">Región:</label><br>
+        <select id="select-region">
+            <option value="" disabled selected>Selecciona tu región</option>
+            <option value="1">Buenos Aires</option>
+            <option value="2">Córdoba</option>
+        </select><br><br>
+
+        <label for="input-tamanio">Tamaño (en metros):</label><br>
+        <input type="number" id="input-tamanio" step="0.1" placeholder="Ej: 1.5"><br><br>
+
+        <label for="comentarios">Comentarios:</label><br>
+        <textarea id="comentarios" placeholder="Escribe tus comentarios aquí..."></textarea><br>
+        
+        <input type="file" id="input-archivo-oculto" accept="image/*" style="display: none;">
+        
+        <button type="button" id="btn-subir-imagen-visual">📷 Subir imagen</button>
+        <span id="nombre-archivo-seleccionado" style="font-size: 12px; color: gray; margin-left: 10px;">Ningún archivo seleccionado</span>
+        <br><br>
+
+        <button id="btn-subir-baldosa-grande" style="background-color: #73b324; color: white; padding: 10px 20px; border: none; cursor: pointer;">
+            Subir baldosa
+        </button>
+    </div>
 
     <script type="module" src="index.js"></script>
 </body>

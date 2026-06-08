@@ -1,6 +1,37 @@
 import { supabase } from './supabase.js';
 
+async function validar(email, contrasenia) {
+
+    if (contrasenia.length < 8) {
+        console.error('Error: La contraseña debe tener al menos 8 caracteres.');
+        return { valido: false, error: 'La contraseña debe tener al menos 8 caracteres.' };
+    }
+
+    const { data, error } = await supabase
+        .from('Usuarios')
+        .select('email')
+        .eq('email', email); 
+
+    if (error) {
+        console.error('Error al verificar el email en Supabase:', error.message);
+        return { valido: false, error: 'Error de conexión al verificar el email.' };
+    }
+
+    if (data && data.length > 0) {
+        console.error('El email ya está registrado:', email);
+        return { valido: false, error: 'El correo electrónico ya está registrado.' };
+    }
+
+    return { valido: true };
+}
+
 async function registro(nombre, email, contrasenia, region) {
+
+    const validacion = await validar(email, contrasenia);
+    if (!validacion.valido) {
+        return { success: false, error: validacion.error };
+    }
+
     console.log("Enviando datos a Supabase...", { nombre, email, region });
     const fechaHoraActual = new Date();
     const { data, error } = await supabase
@@ -25,5 +56,6 @@ async function registro(nombre, email, contrasenia, region) {
     console.log('🎉 Usuario registrado con éxito:', data);
     return { success: true, data: data };
 }
+
 
 export { registro };
