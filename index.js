@@ -3,6 +3,7 @@ import {registro } from './registro.js';
 import {login} from './login.js';
 import { subirBaldosa } from './subirBaldosa.js';
 
+
 //registro
 async function manejarRegistro() {
     const nombre = document.getElementById('regNombre').value;

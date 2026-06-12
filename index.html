@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ruta Verde - Autenticación y Baldosas</title>
     <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
 </head>
 <body>
 
-    <h2>Registro de Usuario</h2>
+    <!-- <h2>Registro de Usuario</h2>
     <input type="text" id="regNombre" placeholder="Nombre Completo">
     <input type="email" id="regEmail" placeholder="Correo Electrónico">
     <input type="password" id="regContrasena" placeholder="Contraseña">
@@ -55,8 +59,14 @@
         <button id="btn-subir-baldosa-grande" style="background-color: #73b324; color: white; padding: 10px 20px; border: none; cursor: pointer;">
             Subir baldosa
         </button>
+        
     </div>
-
-    <script type="module" src="index.js"></script>
+-->
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+    <script type="module" src="mapa.js"></script>
+     
 </body>
 </html>
