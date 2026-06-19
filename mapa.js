@@ -48,3 +48,28 @@ function ubicarDispositivo() {
 
 // 4. Ejecutar la función automáticamente al cargar la página
 ubicarDispositivo();
+
+fetch('ecorregiones.json') 
+    .then(response => {
+        if (!response.ok) throw new Error("No se encontró el archivo del mapa");
+        return response.json();
+    })
+    .then(data => {
+        console.log("¡Capa cargada con éxito!", data);
+        
+        // Dibujamos las ecorregiones
+        const capa = L.geoJSON(data, {
+            style: {
+                color: "#2c3e50",
+                weight: 1.5,
+                fillColor: "#73b324",
+                fillOpacity: 0.4
+            }
+        }).addTo(map);
+
+        // Forzamos al mapa a encuadrar el GeoJSON para ver dónde apareció
+        map.fitBounds(capa.getBounds());
+    })
+    .catch(err => {
+        console.error("Error en el fetch:", err);
+    });

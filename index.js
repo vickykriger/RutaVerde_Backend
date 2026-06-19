@@ -97,3 +97,4 @@ btnSubirBaldosaGrande.addEventListener('click', async () => {
         console.error("Error devuelto por Supabase:", resultado.error);
     }
 });
+
