@@ -29,6 +29,8 @@
     <button id="btnIngresar">Ingresar Usuario</button>
 
     <hr> <h2>Subir Baldosa</h2>
+    <div id="mensaje-estado" style="color: red; margin-bottom: 10px; font-weight: bold;"></div>
+
     <div>
         <label for="input-nombre-planta">Planta:</label><br>
         <input type="text" id="input-nombre-planta" placeholder="Nombre de la planta"><br><br>
@@ -40,7 +42,7 @@
             <option value="2">Córdoba</option>
         </select><br><br>
 
-        <label for="input-tamanio">Tamaño (en metros):</label><br>
+        <label for="input-tamanio">Tamaño (en metros, entre 1 y 500):</label><br>
         <input type="number" id="input-tamanio" step="0.1" placeholder="Ej: 1.5"><br><br>
 
         <label for="comentarios">Comentarios:</label><br>
