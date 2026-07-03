@@ -2,42 +2,54 @@ import { supabase } from './supabase.js';
 import {registro } from './registro.js';
 import {login} from './login.js';
 import { subirBaldosa } from './subirBaldosa.js';
+import cors from 'cors';
+import express from 'express';
+const app = express();
+
+app.use(cors({
+  origin: 'http://localhost:5173' 
+}));
+
+app.use(express.json());
+const PORT = 5174;
+
+app.listen(PORT, () => {
+  console.log(`\n🚀 ¡Backend encendido con éxito!`);
+  console.log(`📡 Escuchando peticiones en: http://localhost:${PORT}`);
+});
 
 //registro
-async function manejarRegistro() {
-    const nombre = document.getElementById('regNombre').value;
-    const email = document.getElementById('regEmail').value;
-    const contrasenia = document.getElementById('regContrasena').value;
-    const regionId = parseInt(document.getElementById('regProvincia').value); 
-
-    if(!nombre || !email || !contrasenia || !regionId) {
-        alert("Por favor, completa todos los campos, incluyendo tu provincia.");
-        return;
+app.post('/api/registro', async (req, res) => {
+  try {
+    const { nombre, email, contrasenia, region } = req.body;
+    const resultado = await registro(nombre, email, contrasenia, region);
+    
+    if (resultado.success) {
+      return res.status(200).json(resultado);
+    } else {
+      return res.status(400).json(resultado); 
     }
-
-    await registro(nombre, email, contrasenia, regionId);
-}
-
-document.getElementById('btnRegistrar').addEventListener('click', manejarRegistro);
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 //login
-async function manejarLogin() {
-    const email = document.getElementById('loginEmail').value;
-    const contrasenia = document.getElementById('loginContrasena').value;
-    
-    if(!email || !contrasenia) {
-        alert("Por favor, completa todos los campos.");
-        return;
-    }
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, contrasenia } = req.body;
     const usuarioLogueado = await login(email, contrasenia);
     
     if (usuarioLogueado) {
-        console.log("Datos del usuario activo:", usuarioLogueado);
+      return res.status(200).json({ success: true, usuario: usuarioLogueado });
+    } else {
+      return res.status(401).json({ success: false, error: 'Credenciales inválidas' });
     }
-}
-
-document.getElementById('btnIngresar').addEventListener('click', manejarLogin);
-
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+ 
 //subirBaldosa
 const inputNombrePlanta = document.getElementById('input-nombre-planta');
 const btnSubirImagenVisual = document.getElementById('btn-subir-imagen-visual');
