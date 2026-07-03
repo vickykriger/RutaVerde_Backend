@@ -79,5 +79,4 @@ async function registro(nombre, email, contrasenia, region) {
     return { success: true, data: data };
 }
 
-
 export { registro };

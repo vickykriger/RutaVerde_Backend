@@ -16,7 +16,7 @@ export async function login(email, contrasenia) {
         }
 
         console.log('Inicio de sesión exitoso:', data);
-        alert(`¡Bienvenido/a de nuevo, ${data.nombreC}!`);
+        console.log(`¡Bienvenido/a de nuevo, ${data.nombreC}!`);
         
         return data;
 
