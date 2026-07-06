@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+import { supabase } from './src/config/supabase.js';
 import {registro } from './registro.js';
 import {login} from './login.js';
 import { subirBaldosa } from './subirBaldosa.js';

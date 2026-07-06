@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+import { supabase } from './src/config/supabase.js';
 
 async function subirImagenStorage(archivo) {
     const nombreArchivo = `${Date.now()}_${archivo.name}`;

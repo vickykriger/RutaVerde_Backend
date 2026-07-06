@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+import { supabase } from './src/config/supabase.js';
 
 export async function login(email, contrasenia) {
     try {

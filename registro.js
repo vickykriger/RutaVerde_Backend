@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+import { supabase } from './src/config/supabase.js';
 
 async function validar(email, contrasenia) {
 
