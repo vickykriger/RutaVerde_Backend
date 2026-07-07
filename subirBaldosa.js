@@ -1,14 +1,23 @@
 import { supabase } from './supabase.js';
 
 async function subirImagenStorage(archivo) {
-    const nombreArchivo = `${Date.now()}_${archivo.name}`;
-    const { data, error } = await supabase.storage.from('imagenes_baldosas').upload(nombreArchivo, archivo);
-    if (error) throw new Error('No se pudo subir la imagen.');
+    const nombreArchivo = `${Date.now()}_${archivo.originalname}`;
+    const { data, error } = await supabase.storage
+        .from('imagenes_baldosas')
+        .upload(nombreArchivo, archivo.buffer, {
+            contentType: archivo.mimetype
+        });
+
+    if (error) {
+        console.error("Error subiendo a Storage:", error.message);
+        throw new Error('No se pudo subir la imagen al Storage de Supabase.');
+    }
+
     const { data: urlData } = supabase.storage.from('imagenes_baldosas').getPublicUrl(nombreArchivo);
     return urlData.publicUrl;
 }
 
- async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios, archivoImagen) {
+async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios, archivoImagen) {
     try {
         let urlImagenFinal = null;
         if (archivoImagen) {
@@ -31,7 +40,6 @@ async function subirImagenStorage(archivo) {
     } catch (err) {
         return { success: false, error: err.message };
     }
-
 }
 
-export{subirBaldosa};
+export { subirBaldosa };
