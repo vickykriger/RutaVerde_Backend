@@ -1,4 +1,4 @@
-import { supabase } from './src/config/supabase.js';
+/* import { supabase } from './src/config/supabase.js';
 
 async function validar(email, contrasenia) {
 
@@ -79,4 +79,4 @@ async function registro(nombre, email, contrasenia, region) {
 }
 
 
-export { registro };
+export { registro }; */

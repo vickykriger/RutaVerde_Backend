@@ -1,4 +1,4 @@
-import { supabase } from './src/config/supabase.js';
+/* import { supabase } from './src/config/supabase.js';
 
 async function subirImagenStorage(archivo) {
     const nombreArchivo = `${Date.now()}_${archivo.name}`;
@@ -35,3 +35,4 @@ async function subirImagenStorage(archivo) {
 }
 
 export{subirBaldosa};
+ */

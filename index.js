@@ -1,4 +1,27 @@
-import { supabase } from './src/config/supabase.js';
+import express from 'express';
+import cors from 'cors';
+import authRoutes from './src/routes/authRoutes.js'; 
+import baldosaRoutes from './src/routes/baldosaRoutes.js'; 
+
+const app = express();
+const PORT = 5000;
+
+// Middlewares obligatorios
+app.use(cors());
+app.use(express.json());
+
+// Enlazar las rutas de tu API
+app.use('/api/auth', authRoutes);
+app.use('/api/baldosas', baldosaRoutes);
+
+// Arrancar el servidor
+app.listen(PORT, () => {
+    console.log(`==================================================`);
+    console.log(` Servidor backend corriendo en http://localhost:${PORT}`);
+    console.log(`==================================================`);
+});
+
+/* import { supabase } from './src/config/supabase.js';
 import {registro } from './registro.js';
 import {login} from './login.js';
 import { subirBaldosa } from './subirBaldosa.js';
@@ -131,4 +154,4 @@ btnSubirBaldosaGrande.addEventListener('click', async () => {
         
         console.error("Error devuelto por Supabase:", resultado.error);
     }
-});
+}); */
