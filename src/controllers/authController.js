@@ -1,11 +1,9 @@
 import * as authService from '../services/authService.js';
 
-// Controlador para el Registro de Usuarios
 export async function registrarUsuario(req, res) {
     try {
         const { nombre, email, contrasenia, region } = req.body;
         
-        // Llamamos al servicio de autenticación para procesar el registro
         const resultado = await authService.registro(nombre, email, contrasenia, region);
         
         if (resultado.success) {
@@ -18,12 +16,10 @@ export async function registrarUsuario(req, res) {
     }
 }
 
-// Controlador para el Login de Usuarios
 export async function loginUsuario(req, res) {
     try {
         const { email, contrasenia } = req.body;
         
-        // Llamamos al servicio para verificar las credenciales en Supabase
         const usuario = await authService.login(email, contrasenia);
         
         if (usuario) {

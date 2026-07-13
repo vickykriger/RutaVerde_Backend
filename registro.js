@@ -12,7 +12,6 @@ async function validar(email, contrasenia) {
         return { valido: false, error: 'La contraseña no puede contener espacios.' };
     }
 
-    // Validar comas en la contraseña
     if (contrasenia.includes(',')) {
         console.error('Error: La contraseña no puede contener comas.');
         return { valido: false, error: 'La contraseña no puede contener comas (,).' };
