@@ -5,15 +5,28 @@ export async function crearBaldosa(req, res) {
         const { nombrePlanta, idRegion, tamanio, comentarios } = req.body;
         const archivoImagen = req.file;
 
-        if (!tamanio || isNaN(tamanio) || tamanio < 10 || tamanio > 100) { 
-            return res.status(400).json({ success: false, error: "El tamaño debe ser entre 10 y 100." });
+        if (!nombrePlanta || !nombrePlanta.trim()) {
+            return res.status(400).json({ success: false, error: "El nombre de la planta es obligatorio." });
+        }
+
+        if (!idRegion || isNaN(parseInt(idRegion))) {
+            return res.status(400).json({ success: false, error: "La región es obligatoria." });
+        }
+
+        if (!archivoImagen) {
+            return res.status(400).json({ success: false, error: "La imagen es obligatoria." });
+        }
+
+        const tamanioNumero = Number(tamanio);
+        if (!tamanio || isNaN(tamanioNumero) || tamanioNumero < 1 || tamanioNumero > 500) {
+            return res.status(400).json({ success: false, error: "El tamaño debe ser entre 1 y 500." });
         }
 
         const resultado = await baldosaService.subirBaldosa(
-            nombrePlanta, 
-            parseInt(idRegion), 
-            parseInt(tamanio), 
-            comentarios, 
+            nombrePlanta.trim(),
+            parseInt(idRegion),
+            tamanioNumero,
+            comentarios ? comentarios.trim() : null,
             archivoImagen
         );
         

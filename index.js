@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 
 // Enlazar las rutas de tu API
-app.use('/api/auth', authRoutes);
-app.use('/api/baldosas', baldosaRoutes);
+app.use('/api', authRoutes);
+app.use('/api/baldosas', baldosaRoutes); 
 
 // Arrancar el servidor
 app.listen(PORT, () => {

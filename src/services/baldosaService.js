@@ -32,7 +32,7 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
 
         // 4. Si existe, ¡genial! El flujo continúa con normalidad...
         const nombreArchivo = `${Date.now()}_${archivoImagen.originalname}`;
-        const nombreBucket = 'imagenes-baldosas'; 
+        const nombreBucket = 'imagenes_baldosas';
 
         // Subida de imagen al storage
         const { data: storageData, error: storageError } = await supabase.storage
@@ -47,11 +47,18 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
         }
 
         // Obtener URL pública
-        const { data: urlData } = supabase.storage
+        const { data: urlData, error: urlError } = await supabase.storage
             .from(nombreBucket)
             .getPublicUrl(nombreArchivo);
 
-        const urlImagen = urlData.publicUrl;
+        if (urlError) {
+            return { success: false, error: `Error obteniendo la URL pública: ${urlError.message}` };
+        }
+
+        const urlImagen = urlData?.publicUrl;
+        if (!urlImagen) {
+            return { success: false, error: 'No se pudo obtener la URL pública de la imagen.' };
+        }
 
         // Guardar baldosa en la BD
         const { data: dbData, error: dbError } = await supabase
