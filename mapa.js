@@ -16,6 +16,32 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+
+
+fetch('ecorregiones.json') 
+    .then(response => {
+        if (!response.ok) throw new Error("No se encontró el archivo del mapa");
+        return response.json();
+    })
+    .then(data => {
+        console.log("¡Capa cargada con éxito!", data);
+        
+        const capa = L.geoJSON(data, {
+            style: {
+                color: "#2c3e50",
+                weight: 1.5,
+                fillColor: "#73b324",
+                fillOpacity: 0.4
+            }
+        }).addTo(map);
+
+        map.fitBounds(capa.getBounds());
+    })
+    .catch(err => {
+        console.error("Error en el fetch:", err);
+    });
+/*
+CHEQUEAR ESTO!!!!
 function ubicarDispositivo() {
     if (!navigator.geolocation) {
         alert("Tu navegador no soporta la geolocalización.");
@@ -51,26 +77,4 @@ function ubicarDispositivo() {
 }
 
 ubicarDispositivo();
-
-fetch('ecorregiones.json') 
-    .then(response => {
-        if (!response.ok) throw new Error("No se encontró el archivo del mapa");
-        return response.json();
-    })
-    .then(data => {
-        console.log("¡Capa cargada con éxito!", data);
-        
-        const capa = L.geoJSON(data, {
-            style: {
-                color: "#2c3e50",
-                weight: 1.5,
-                fillColor: "#73b324",
-                fillOpacity: 0.4
-            }
-        }).addTo(map);
-
-        map.fitBounds(capa.getBounds());
-    })
-    .catch(err => {
-        console.error("Error en el fetch:", err);
-    });
+*/
