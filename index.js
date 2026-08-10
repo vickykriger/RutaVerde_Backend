@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import authRoutes from './src/routes/authRoutes.js'; 
 import baldosaRoutes from './src/routes/baldosaRoutes.js'; 
+import regionRoutes from './src/routes/regionRoutes.js';
 
 const app = express();
 const PORT = 5000;
@@ -13,6 +14,7 @@ app.use(express.json());
 // Enlazar las rutas de tu API
 app.use('/api', authRoutes);
 app.use('/api/baldosas', baldosaRoutes); 
+app.use('/api', regionRoutes); // Disponibiliza GET /api/regiones
 
 // Arrancar el servidor
 app.listen(PORT, () => {
@@ -20,6 +22,10 @@ app.listen(PORT, () => {
     console.log(` Servidor backend corriendo en http://localhost:${PORT}`);
     console.log(`==================================================`);
 });
+
+
+
+
 
 /* import { supabase } from './src/config/supabase.js';
 import {registro } from './registro.js';

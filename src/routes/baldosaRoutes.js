@@ -1,6 +1,6 @@
 import express from 'express';
 import { crearBaldosa } from '../controllers/baldosaController.js';
-import { upload } from '../middleware/multer.js';
+import { upload } from '../middlewares/multer.js';
 
 const router = express.Router();
 
