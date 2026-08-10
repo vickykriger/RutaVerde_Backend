@@ -5,7 +5,7 @@ import { subirBaldosa } from './subirBaldosa.js';
 import cors from 'cors';
 import express from 'express';
 import multer from 'multer';
-
+import { obtenerRegiones } from './obtenerRegiones.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -91,6 +91,22 @@ app.post('/api/baldosas', upload.single('imagen'), async (req, res) => {
       return res.status(200).json(resultado);
     } else {
       return res.status(500).json(resultado);
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
+// --- NOMBRES BALDOSAS ---
+app.get('/api/regiones', async (req, res) => {
+  try {
+    const resultado = await obtenerRegiones();
+    console.log("hola");
+    if (resultado.success) {
+      return res.status(200).json(resultado.data);
+    } else {
+      return res.status(500).json({ success: false, error: resultado.error });
     }
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
