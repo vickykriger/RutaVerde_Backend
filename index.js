@@ -1,26 +1,28 @@
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './src/routes/authRoutes.js'; 
-import baldosaRoutes from './src/routes/baldosaRoutes.js'; 
+import authRoutes from './src/routes/authRoutes.js';
+import baldosaRoutes from './src/routes/baldosaRoutes.js';
 import regionRoutes from './src/routes/regionRoutes.js';
 
 const app = express();
 const PORT = 5000;
 
 // Middlewares obligatorios
-app.use(cors());
 app.use(express.json());
 
+app.use(cors({
+  origin: 'http://localhost:5173'
+}));
 // Enlazar las rutas de tu API
 app.use('/api', authRoutes);
-app.use('/api/baldosas', baldosaRoutes); 
+app.use('/api/baldosas', baldosaRoutes);
 app.use('/api', regionRoutes); // Disponibiliza GET /api/regiones
 
 // Arrancar el servidor
 app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(` Servidor backend corriendo en http://localhost:${PORT}`);
-    console.log(`==================================================`);
+  console.log(`==================================================`);
+  console.log(` Servidor backend corriendo en http://localhost:${PORT}`);
+  console.log(`==================================================`);
 });
 
 
@@ -130,24 +132,4 @@ app.post('/api/baldosas', upload.single('imagen'), async (req, res) => {
 });
 
 
-// --- NOMBRES BALDOSAS ---
-app.get('/api/regiones', async (req, res) => {
-  try {
-    const resultado = await obtenerRegiones();
-    console.log("hola");
-    if (resultado.success) {
-      return res.status(200).json(resultado.data);
-    } else {
-      return res.status(500).json({ success: false, error: resultado.error });
-    }
-}); */
-  } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// --- ENCENDIDO DEL SERVIDOR ---
-app.listen(PORT, () => {
-  console.log(`\n🚀 ¡Backend encendido con éxito!`);
-  console.log(`📡 Escuchando peticiones en: http://localhost:${PORT}`);
-});
+// --- NOMBRES BALDOSAS ---*/
