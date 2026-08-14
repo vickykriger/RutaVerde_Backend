@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+/* import { supabase } from './src/config/supabase.js';
 
 async function validar(email, contrasenia) {
 
@@ -12,7 +12,6 @@ async function validar(email, contrasenia) {
         return { valido: false, error: 'La contraseña no puede contener espacios.' };
     }
 
-    // Validar comas en la contraseña
     if (contrasenia.includes(',')) {
         console.error('Error: La contraseña no puede contener comas.');
         return { valido: false, error: 'La contraseña no puede contener comas (,).' };
@@ -79,4 +78,6 @@ async function registro(nombre, email, contrasenia, region) {
     return { success: true, data: data };
 }
 
+
+export { registro }; */
 export { registro };

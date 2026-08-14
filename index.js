@@ -1,3 +1,35 @@
+import express from 'express';
+import cors from 'cors';
+import authRoutes from './src/routes/authRoutes.js'; 
+import baldosaRoutes from './src/routes/baldosaRoutes.js'; 
+import regionRoutes from './src/routes/regionRoutes.js';
+
+const app = express();
+const PORT = 5000;
+
+// Middlewares obligatorios
+app.use(cors());
+app.use(express.json());
+
+// Enlazar las rutas de tu API
+app.use('/api', authRoutes);
+app.use('/api/baldosas', baldosaRoutes); 
+app.use('/api', regionRoutes); // Disponibiliza GET /api/regiones
+
+// Arrancar el servidor
+app.listen(PORT, () => {
+    console.log(`==================================================`);
+    console.log(` Servidor backend corriendo en http://localhost:${PORT}`);
+    console.log(`==================================================`);
+});
+
+
+
+
+
+/* import { supabase } from './src/config/supabase.js';
+import {registro } from './registro.js';
+import {login} from './login.js';
 import { supabase } from './supabase.js';
 import { registro } from './registro.js';
 import { login } from './login.js';
@@ -108,6 +140,7 @@ app.get('/api/regiones', async (req, res) => {
     } else {
       return res.status(500).json({ success: false, error: resultado.error });
     }
+}); */
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }

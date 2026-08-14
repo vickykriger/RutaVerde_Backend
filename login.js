@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+/* import { supabase } from './src/config/supabase.js';
 
 export async function login(email, contrasenia) {
     try {
@@ -24,4 +24,4 @@ export async function login(email, contrasenia) {
         console.error('Error inesperado:', err);
         return null;
     }
-}
+} */
