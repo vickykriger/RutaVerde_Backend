@@ -80,3 +80,4 @@ async function registro(nombre, email, contrasenia, region) {
 
 
 export { registro }; */
+export { registro };
