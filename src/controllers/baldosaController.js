@@ -2,10 +2,13 @@ import * as baldosaService from '../services/baldosaService.js';
 
 export async function crearBaldosa(req, res) {
     try {
-        const { nombrePlanta, idRegion, tamanio, comentarios } = req.body;
+        // Capturamos el campo sin importar si el frontend envía 'idPlanta', 'nombrePlanta' o 'planta'
+        const plantaEntrada = req.body.idPlanta || req.body.nombrePlanta || req.body.planta;
+        const { idRegion, tamanio, comentarios } = req.body;
         const archivoImagen = req.file;
 
-        if (!nombrePlanta || !nombrePlanta.trim()) {
+        // Validamos que venga algún valor en el campo de la planta
+        if (!plantaEntrada || (typeof plantaEntrada === 'string' && !plantaEntrada.trim())) {
             return res.status(400).json({ success: false, error: "El nombre de la planta es obligatorio." });
         }
 
@@ -22,12 +25,14 @@ export async function crearBaldosa(req, res) {
             return res.status(400).json({ success: false, error: "El tamaño debe ser entre 1 y 500." });
         }
 
+        // Le pasamos plantaEntrada al servicio (que ya sabe resolver si es un ID o un nombre)
         const resultado = await baldosaService.subirBaldosa(
-            nombrePlanta.trim(),
+            typeof plantaEntrada === 'string' ? plantaEntrada.trim() : plantaEntrada,
             parseInt(idRegion),
             tamanioNumero,
             comentarios ? comentarios.trim() : null,
-            archivoImagen
+            archivoImagen,
+            req.usuarioId || null // opcional por si agregas autenticación después
         );
         
         if (resultado.success) {

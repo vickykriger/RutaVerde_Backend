@@ -1,7 +1,26 @@
 import { supabase } from '../config/supabase.js';
 
-export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios, archivoImagen, idUsuario) {
+export async function subirBaldosa(plantaEntrada, idRegion, tamanio, comentarios, archivoImagen, idUsuario) {
     try {
+        let nombrePlanta = plantaEntrada;
+
+        // Si lo que llega es un número/ID o una cadena numérica (como '24'), buscamos su nombre en la BD
+        if (plantaEntrada && !isNaN(Number(plantaEntrada))) {
+            const { data: plantaEncontrada, error: errorBusqueda } = await supabase
+                .from('Plantas_Nativas')
+                .select('nombre')
+                .eq('id_planta', parseInt(plantaEntrada)) // Ajusta 'id_planta' si tu columna tiene otro nombre
+                .maybeSingle();
+
+            if (errorBusqueda) {
+                return { success: false, error: `Error buscando la planta por ID: ${errorBusqueda.message}` };
+            }
+
+            if (plantaEncontrada) {
+                nombrePlanta = plantaEncontrada.nombre;
+            }
+        }
+
         // 1. Validaciones básicas iniciales
         if (!nombrePlanta) {
             return { success: false, error: "El nombre de la planta es obligatorio." };
@@ -11,18 +30,17 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
         }
 
         // 2. COMPARACIÓN CON LA TABLA Plantas_Nativas
-        // Buscamos si existe alguna planta nativa con ese nombre (sin importar mayúsculas/minúsculas)
         const { data: plantaValida, error: errorValidacion } = await supabase
             .from('Plantas_Nativas')
-            .select('nombre') // Asegúrate de que tu columna se llame 'nombre' en Supabase
+            .select('nombre')
             .ilike('nombre', nombrePlanta.trim())
-            .maybeSingle(); // Devuelve el registro si lo encuentra, o null si no existe
+            .maybeSingle();
 
         if (errorValidacion) {
             return { success: false, error: `Error al validar la planta nativa: ${errorValidacion.message}` };
         }
 
-        // 3. Si NO existe en la base de datos, rechazamos la subida inmediatamente
+        // 3. Rechazo si no existe en el listado
         if (!plantaValida) {
             return { 
                 success: false, 
@@ -30,11 +48,10 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
             };
         }
 
-        // 4. Si existe, ¡genial! El flujo continúa con normalidad...
+        // 4. Subida de imagen al storage
         const nombreArchivo = `${Date.now()}_${archivoImagen.originalname}`;
         const nombreBucket = 'imagenes_baldosas';
 
-        // Subida de imagen al storage
         const { data: storageData, error: storageError } = await supabase.storage
             .from(nombreBucket)
             .upload(nombreArchivo, archivoImagen.buffer, {
