@@ -1,54 +1,38 @@
-import { supabase } from '../config/supabase.js';
-
+import {supabase} from '../config/supabase.js';
 export async function subirBaldosa(plantaEntrada, idRegion, tamanio, comentarios, archivoImagen, idUsuario) {
     try {
-        let nombrePlanta = plantaEntrada;
-
-        // Si lo que llega es un número/ID o una cadena numérica (como '24'), buscamos su nombre en la BD
-        if (plantaEntrada && !isNaN(Number(plantaEntrada))) {
-            const { data: plantaEncontrada, error: errorBusqueda } = await supabase
-                .from('Plantas_Nativas')
-                .select('nombre')
-                .eq('id_planta', parseInt(plantaEntrada)) // Ajusta 'id_planta' si tu columna tiene otro nombre
-                .maybeSingle();
-
-            if (errorBusqueda) {
-                return { success: false, error: `Error buscando la planta por ID: ${errorBusqueda.message}` };
-            }
-
-            if (plantaEncontrada) {
-                nombrePlanta = plantaEncontrada.nombre;
-            }
-        }
-
-        // 1. Validaciones básicas iniciales
-        if (!nombrePlanta) {
-            return { success: false, error: "El nombre de la planta es obligatorio." };
+        if (!plantaEntrada) {
+            return { success: false, error: "La planta es obligatoria." };
         }
         if (!archivoImagen) {
             return { success: false, error: "La imagen es obligatoria." };
         }
 
-        // 2. COMPARACIÓN CON LA TABLA Plantas_Nativas
-        const { data: plantaValida, error: errorValidacion } = await supabase
-            .from('Plantas_Nativas')
-            .select('nombre')
-            .ilike('nombre', nombrePlanta.trim())
-            .maybeSingle();
+        // 1. UNA SOLA BÚSQUEDA: Buscar por ID si es número, o por Nombre si es texto
+        let query = supabase.from('Plantas_Nativas').select('nombre');
 
-        if (errorValidacion) {
-            return { success: false, error: `Error al validar la planta nativa: ${errorValidacion.message}` };
+        if (!isNaN(Number(plantaEntrada))) {
+            query = query.eq('id_planta', parseInt(plantaEntrada));
+        } else {
+            query = query.ilike('nombre', plantaEntrada.trim());
         }
 
-        // 3. Rechazo si no existe en el listado
+        const { data: plantaValida, error: errorBusqueda } = await query.maybeSingle();
+
+        if (errorBusqueda) {
+            return { success: false, error: `Error buscando la planta: ${errorBusqueda.message}` };
+        }
+
         if (!plantaValida) {
             return { 
                 success: false, 
-                error: `No se pudo registrar. La planta "${nombrePlanta}" no existe en nuestro listado de plantas nativas.` 
+                error: `No se pudo registrar. La planta "${plantaEntrada}" no existe en el listado.` 
             };
         }
 
-        // 4. Subida de imagen al storage
+        const nombrePlanta = plantaValida.nombre;
+
+        // 2. Subida de imagen al Storage
         const nombreArchivo = `${Date.now()}_${archivoImagen.originalname}`;
         const nombreBucket = 'imagenes_baldosas';
 
@@ -64,20 +48,16 @@ export async function subirBaldosa(plantaEntrada, idRegion, tamanio, comentarios
         }
 
         // Obtener URL pública
-        const { data: urlData, error: urlError } = await supabase.storage
+        const { data: urlData } = supabase.storage
             .from(nombreBucket)
             .getPublicUrl(nombreArchivo);
-
-        if (urlError) {
-            return { success: false, error: `Error obteniendo la URL pública: ${urlError.message}` };
-        }
 
         const urlImagen = urlData?.publicUrl;
         if (!urlImagen) {
             return { success: false, error: 'No se pudo obtener la URL pública de la imagen.' };
         }
 
-        // Guardar baldosa en la BD
+        // 3. Guardar baldosa en la BD
         const { data: dbData, error: dbError } = await supabase
             .from('Baldosa')
             .insert([

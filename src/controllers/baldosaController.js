@@ -2,14 +2,16 @@ import * as baldosaService from '../services/baldosaService.js';
 
 export async function crearBaldosa(req, res) {
     try {
-        // Capturamos el campo sin importar si el frontend envía 'idPlanta', 'nombrePlanta' o 'planta'
-        const plantaEntrada = req.body.idPlanta || req.body.nombrePlanta || req.body.planta;
-        const { idRegion, tamanio, comentarios } = req.body;
+        // 1. Leemos 'idPlanta' (que manda el frontend) o 'nombrePlanta' (si viniera por nombre)
+        const { idPlanta, nombrePlanta, idRegion, tamanio, comentarios } = req.body;
         const archivoImagen = req.file;
 
-        // Validamos que venga algún valor en el campo de la planta
+        // Tomamos idPlanta o nombrePlanta
+        const plantaEntrada = idPlanta || nombrePlanta;
+
+        // 2. Validamos que haya llegado alguno
         if (!plantaEntrada || (typeof plantaEntrada === 'string' && !plantaEntrada.trim())) {
-            return res.status(400).json({ success: false, error: "El nombre de la planta es obligatorio." });
+            return res.status(400).json({ success: false, error: "El nombre o ID de la planta es obligatorio." });
         }
 
         if (!idRegion || isNaN(parseInt(idRegion))) {
@@ -25,14 +27,14 @@ export async function crearBaldosa(req, res) {
             return res.status(400).json({ success: false, error: "El tamaño debe ser entre 1 y 500." });
         }
 
-        // Le pasamos plantaEntrada al servicio (que ya sabe resolver si es un ID o un nombre)
+        // 3. Le pasamos 'plantaEntrada' a baldosaService (tu servicio se encarga del resto)
         const resultado = await baldosaService.subirBaldosa(
-            typeof plantaEntrada === 'string' ? plantaEntrada.trim() : plantaEntrada,
+            plantaEntrada,
             parseInt(idRegion),
             tamanioNumero,
             comentarios ? comentarios.trim() : null,
             archivoImagen,
-            req.usuarioId || null // opcional por si agregas autenticación después
+            req.usuario?.id // o el idUsuario si lo tenés en la request
         );
         
         if (resultado.success) {
