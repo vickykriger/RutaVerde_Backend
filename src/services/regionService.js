@@ -34,25 +34,29 @@ export async function obtenerRegionesConPlantasService() {
     return { success: false, error: err.message };
   }
 }
+
 export async function obtenerTodasLasRegionesService() {
   try {
     const { data, error } = await supabase
       .from('Regiones')
-      .select('id_region, nombre, paises, descripcion, bioma');
+      .select('*');
 
-    if (error) throw error;
+    if (error) {
+      console.error("❌ Error de Supabase:", error.message);
+      return { success: false, error: error.message };
+    }
 
     const ecorregiones = (data || []).map((reg) => ({
-      id: reg.id_region,
+      id: reg.id_region || reg.id,
       nombre: reg.nombre || '',
       paises: reg.paises || 'América Latina',
-      resumen: reg.descripcion || 'Sin descripción disponible.',
+      resumen: reg.descripcion || reg.resumen || 'Sin descripción disponible.',
       bioma: reg.bioma || 'Ecorregión'
     }));
 
     return { success: true, data: ecorregiones };
   } catch (err) {
-    console.error("❌ Error consultando Regiones:", err.message);
+    console.error("❌ Excepción atrapada en Service:", err);
     return { success: false, error: err.message };
   }
 }
