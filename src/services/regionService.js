@@ -2,7 +2,6 @@ import { supabase } from '../config/supabase.js';
 
 export async function obtenerRegionesConPlantasService() {
   try {
-    // Le indicamos a Supabase la relación entre Regiones -> Region_Planta -> Plantas_Nativas
     const { data, error } = await supabase
       .from('Regiones')
       .select(`
@@ -21,7 +20,6 @@ export async function obtenerRegionesConPlantasService() {
       return { success: false, error: error.message };
     }
 
-    // Formateamos la respuesta limpia devolviendo el arreglo de plantas
     const regionesFormateadas = data.map(region => ({
       id_region: region.id_region,
       nombre: region.nombre,
@@ -33,6 +31,28 @@ export async function obtenerRegionesConPlantasService() {
     return { success: true, data: regionesFormateadas };
   } catch (err) {
     console.error("❌ Excepción en Service:", err.message);
+    return { success: false, error: err.message };
+  }
+}
+export async function obtenerTodasLasRegionesService() {
+  try {
+    const { data, error } = await supabase
+      .from('Regiones')
+      .select('id_region, nombre, paises, descripcion, bioma');
+
+    if (error) throw error;
+
+    const ecorregiones = (data || []).map((reg) => ({
+      id: reg.id_region,
+      nombre: reg.nombre || '',
+      paises: reg.paises || 'América Latina',
+      resumen: reg.descripcion || 'Sin descripción disponible.',
+      bioma: reg.bioma || 'Ecorregión'
+    }));
+
+    return { success: true, data: ecorregiones };
+  } catch (err) {
+    console.error("❌ Error consultando Regiones:", err.message);
     return { success: false, error: err.message };
   }
 }

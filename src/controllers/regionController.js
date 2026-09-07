@@ -14,4 +14,13 @@ export const getRegiones = async (req, res) => {
     console.error("❌ Error en regionController:", error);
     return res.status(500).json({ success: false, error: error.message });
   }
-};
+}
+export async function obtenerRegiones(req, res) {
+  const respuesta = await obtenerTodasLasRegionesService();
+  
+  if (!respuesta.success) {
+    return res.status(500).json({ error: respuesta.error });
+  }
+
+  return res.json(respuesta.data);
+}
