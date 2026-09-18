@@ -7,8 +7,10 @@ export async function registrarUsuario(req, res) {
         const resultado = await authService.registro(nombre, email, contrasenia, region);
         
         if (resultado.success) {
-            return res.status(200).json(resultado);
+            // 201 es el estado HTTP correcto para la creación exitosa de un recurso
+            return res.status(201).json(resultado);
         } else {
+            // Devuelve 400 con el mensaje de error de la validación
             return res.status(400).json(resultado); 
         }
     } catch (error) {
@@ -19,6 +21,14 @@ export async function registrarUsuario(req, res) {
 export async function loginUsuario(req, res) {
     try {
         const { email, contrasenia } = req.body;
+
+        // Validación inicial para evitar procesar consultas vacías
+        if (!email || !contrasenia) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Debes proporcionar un correo y una contraseña.' 
+            });
+        }
         
         const usuario = await authService.login(email, contrasenia);
         
