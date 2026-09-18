@@ -37,21 +37,32 @@ export async function obtenerRegionesConPlantasService() {
 
 export async function obtenerTodasLasRegionesService() {
   try {
+    // Traducción directa de tu SQL: 
+    // SELECT r.*, COUNT(b.id_region) FROM "Regiones" r LEFT JOIN "Baldosa" b ... GROUP BY r.id_region
     const { data, error } = await supabase
       .from('Regiones')
-      .select('*');
+      .select(`
+        id_region,
+        nombre,
+        paises,
+        descripcion,
+        bioma,
+        Baldosa ( id_region )
+      `);
 
     if (error) {
       console.error("❌ Error de Supabase:", error.message);
       return { success: false, error: error.message };
     }
 
-    const ecorregiones = (data || []).map((reg) => ({
-      id: reg.id_region || reg.id,
-      nombre: reg.nombre || '',
-      paises: reg.paises || 'América Latina',
-      resumen: reg.descripcion || reg.resumen || 'Sin descripción disponible.',
-      bioma: reg.bioma || 'Ecorregión'
+    const ecorregiones = (data || []).map((r) => ({
+      id: r.id_region,
+      nombre: r.nombre || '',
+      paises: r.paises || 'América Latina',
+      descripcion: r.descripcion || 'Sin descripción disponible.',
+      resumen: r.descripcion || 'Sin descripción disponible.',
+      bioma: r.bioma || 'Ecorregión',
+      contribuciones: Array.isArray(r.Baldosa) ? r.Baldosa.length : 0
     }));
 
     return { success: true, data: ecorregiones };
