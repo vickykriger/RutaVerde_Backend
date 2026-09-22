@@ -1,4 +1,4 @@
-import { obtenerRegionesConPlantasService } from '../services/regionService.js';
+import { obtenerRegionesConPlantasService, obtenerTodasLasRegionesService } from '../services/regionService.js';
 
 export const getRegiones = async (req, res) => {
   try {
@@ -15,7 +15,7 @@ export const getRegiones = async (req, res) => {
 
 export const obtenerRegiones = async (req, res) => {
   try {
-    const respuesta = await obtenerRegionesConPlantasService();
+    const respuesta = await obtenerTodasLasRegionesService();
     if (!respuesta.success) {
       return res.status(500).json({ error: respuesta.error });
     }
