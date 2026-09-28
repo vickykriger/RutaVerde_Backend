@@ -7,24 +7,28 @@ export async function obtenerRegionesConPlantasService() {
       .select(`
         id_region,
         nombre,
-        Region_Planta!inner (
+        Region_Planta (
           Plantas_Nativas (
             id_planta,
             nombre
           )
         )
-      `);
+      `)
+      .order('nombre', { ascending: true }) // Muestra las regiones ordenadas alfabéticamente
+      .range(0, 9999); // Garantiza traer todas las filas sin límite por defecto
 
     if (error) {
       console.error("❌ Error en Query de Supabase:", error.message);
       return { success: false, error: error.message };
     }
 
-    const regionesFormateadas = data.map(region => ({
+    const regionesFormateadas = (data || []).map(region => ({
       id_region: region.id_region,
       nombre: region.nombre,
-      plantas: region.Region_Planta
-        ? region.Region_Planta.map(rp => rp.Plantas_Nativas).filter(Boolean)
+      plantas: Array.isArray(region.Region_Planta)
+        ? region.Region_Planta
+            .map(rp => rp.Plantas_Nativas)
+            .filter(Boolean)
         : []
     }));
 
@@ -37,8 +41,6 @@ export async function obtenerRegionesConPlantasService() {
 
 export async function obtenerTodasLasRegionesService() {
   try {
-    // Traducción directa de tu SQL: 
-    // SELECT r.*, COUNT(b.id_region) FROM "Regiones" r LEFT JOIN "Baldosa" b ... GROUP BY r.id_region
     const { data, error } = await supabase
       .from('Regiones')
       .select(`
