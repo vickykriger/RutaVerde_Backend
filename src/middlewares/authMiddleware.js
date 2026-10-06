@@ -1,5 +1,3 @@
-// src/middlewares/authMiddleware.js
-
 export const validarRegistro = (req, res, next) => {
   const { nombre, email, password } = req.body;
   const errores = [];

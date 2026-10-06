@@ -3,6 +3,7 @@ import cors from 'cors';
 import authRoutes from './src/routes/authRoutes.js';
 import baldosaRoutes from './src/routes/baldosaRoutes.js';
 import regionRoutes from './src/routes/regionRoutes.js';
+import noticiasRoutes from './src/routes/noticiasRoutes.js';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
@@ -24,7 +25,8 @@ app.use(cors({
 // Enlazar las rutas de tu API
 app.use('/api', authRoutes);
 app.use('/api/baldosas', baldosaRoutes);
-app.use('/api', regionRoutes); // Disponibiliza GET /api/regiones
+app.use('/api', regionRoutes);
+app.use('/api/noticias', noticiasRoutes);
 
 // Arrancar el servidor
 app.listen(PORT, () => {
