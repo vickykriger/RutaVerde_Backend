@@ -60,7 +60,8 @@ export async function registro(nombre, email, contrasenia, region) {
                     email: emailNormalizado, 
                     contrasena: contraseniaEncriptada,
                     id_region: parseInt(region),
-                    id_rol: 2
+                    id_rol: 2,
+                    fechaR: new Date().toISOString()
                 }
             ])
             .select();
