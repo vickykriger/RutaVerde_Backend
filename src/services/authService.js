@@ -103,3 +103,53 @@ export async function login(email, contrasenia) {
     const { contrasena, ...usuarioSeguro } = usuario;
     return usuarioSeguro; 
 }
+
+export const actualizarNombreUsuarioService = async (idUsuario, nombre) => {
+  const { data, error } = await supabase
+    .from('Usuarios')
+    .update({ nombreC: nombre.trim() })
+    .eq('id_usuario', idUsuario)
+    .select();
+
+  if (error) {
+    throw new Error(`Error al actualizar el nombre: ${error.message}`);
+  }
+
+  return data[0];
+};
+
+export const actualizarFotoPerfilService = async (idUsuario, archivo) => {
+  const nombreBucket = 'PerfilFoto'; 
+
+  const fileExt = archivo.originalname.split('.').pop();
+  const fileName = `${idUsuario}_${Date.now()}.${fileExt}`;
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from(nombreBucket)
+    .upload(fileName, archivo.buffer, {
+      contentType: archivo.mimetype, 
+      upsert: true
+    });
+
+  if (uploadError) {
+    throw new Error(`Error al subir la foto a Storage: ${uploadError.message}`);
+  }
+
+  const { data: urlData } = supabase.storage
+    .from(nombreBucket)
+    .getPublicUrl(fileName);
+
+  const fotoUrl = urlData.publicUrl;
+
+  const { data, error: dbError } = await supabase
+    .from('Usuarios')
+    .update({ fotoPerfil: fotoUrl })
+    .eq('id_usuario', parseInt(idUsuario, 10))
+    .select();
+
+  if (dbError) {
+    throw new Error(`Error al guardar la URL en la base de datos: ${dbError.message}`);
+  }
+
+  return data[0];
+};
