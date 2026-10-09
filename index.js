@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import noticiaRoutes from './src/routes/noticiaRoutes.js';
+import perfilRoutes from './src/routes/perfilRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +28,7 @@ app.use('/api', authRoutes);
 app.use('/api/baldosas', baldosaRoutes);
 app.use('/api', regionRoutes); // Disponibiliza GET /api/regiones
 app.use('/api/noticias', noticiaRoutes);
+app.use('/api/perfil', perfilRoutes);
 
 // Arrancar el servidor
 app.listen(PORT, () => {
