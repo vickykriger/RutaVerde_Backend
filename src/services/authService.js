@@ -59,3 +59,54 @@ export async function login(email, contrasenia) {
     const { contrasena, ...usuarioSeguro } = usuario;
     return usuarioSeguro; 
 }
+
+// NUEVA FUNCIÓN PARA ACTUALIZAR NOMBRE
+export async function actualizarNombreUsuario(idUsuario, nuevoNombre) {
+    try {
+        const { data, error } = await supabase
+            .from('Usuarios')
+            .update({ nombreC: nuevoNombre })
+            .eq('id_usuario', parseInt(idUsuario))
+            .select();
+
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        if (!data || data.length === 0) {
+            return { success: false, error: "Usuario no encontrado." };
+        }
+
+        const { contrasena, ...usuarioSeguro } = data[0];
+        return { success: true, message: "Nombre actualizado correctamente.", data: usuarioSeguro };
+
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function subirFotoPerfil(idUsuario, archivoFoto) {
+  try {
+    if (!archivoFoto) {
+      return { success: false, error: 'No se recibió ninguna imagen.' };
+    }
+
+    // Convertimos el buffer del archivo enviado a una cadena Base64
+    const base64Imagen = `data:${archivoFoto.mimetype};base64,${archivoFoto.buffer.toString('base64')}`;
+
+    // Actualizamos directamente la columna fotoPerfil en la tabla Usuarios
+    const { data, error } = await supabase
+      .from('Usuarios')
+      .update({ fotoPerfil: base64Imagen })
+      .eq('id_usuario', parseInt(idUsuario))
+      .select();
+
+    if (error) {
+      return { success: false, error: `Error en BD: ${error.message}` };
+    }
+
+    return { success: true, fotoPerfil: base64Imagen };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}

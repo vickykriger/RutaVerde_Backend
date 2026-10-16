@@ -1,20 +1,43 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 import authRoutes from './src/routes/authRoutes.js'; 
 import baldosaRoutes from './src/routes/baldosaRoutes.js'; 
 import regionRoutes from './src/routes/regionRoutes.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = 5000;
 
-// Middlewares obligatorios
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Enlazar las rutas de tu API
+// Endpoint para servir el archivo GeoJSON del mapa
+app.get(['/api/ecorregiones', '/api/ecoregiones'], (req, res) => {
+  try {
+    const rutaArchivo = path.join(__dirname, 'ecorregiones.json');
+    fs.readFile(rutaArchivo, 'utf8', (err, data) => {
+      if (err) {
+        console.error("Error leyendo ecorregiones.json:", err);
+        return res.status(500).json({ success: false, error: 'No se pudo leer el archivo del mapa' });
+      }
+      res.json(JSON.parse(data));
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Rutas de la API
 app.use('/api', authRoutes);
 app.use('/api/baldosas', baldosaRoutes); 
-app.use('/api', regionRoutes); // Disponibiliza GET /api/regiones
+app.use('/api', regionRoutes); // Provee /api/regiones o /api/ecorregiones según regionRoutes
 
 // Arrancar el servidor
 app.listen(PORT, () => {
@@ -22,9 +45,6 @@ app.listen(PORT, () => {
     console.log(` Servidor backend corriendo en http://localhost:${PORT}`);
     console.log(`==================================================`);
 });
-
-
-
 
 
 /* import { supabase } from './src/config/supabase.js';
@@ -140,11 +160,12 @@ app.get('/api/regiones', async (req, res) => {
     } else {
       return res.status(500).json({ success: false, error: resultado.error });
     }
-}); */
+}); 
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });
+*/
 
 // --- ENCENDIDO DEL SERVIDOR ---
 app.listen(PORT, () => {

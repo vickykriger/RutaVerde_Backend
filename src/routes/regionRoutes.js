@@ -4,6 +4,6 @@ import { obtenerRegiones } from '../controllers/regionController.js';
 
 const router = Router();
 
-router.get('/regiones', obtenerRegiones);
+router.get('/ecorregiones', obtenerRegiones);
 
 export default router;
