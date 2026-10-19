@@ -39,7 +39,7 @@ export async function registro(nombre, email, contrasenia, region) {
     }
 }
 
-// 1. PRIMERA FASE DE LOGIN: Verificar credenciales y generar código
+// 1. SOLICITAR LOGIN (Genera y guarda el código 2FA)
 export async function solicitarLogin(email, contrasenia) {
     try {
         const { data: usuario, error } = await supabase
@@ -52,25 +52,22 @@ export async function solicitarLogin(email, contrasenia) {
             return { success: false, error: 'Correo o contraseña incorrectos.' };
         }
 
-        // Comparar la contraseña enviada con la contraseña encriptada (usuario.contrasena)
         const contraseniaValida = await bcrypt.compare(contrasenia, usuario.contrasena);
         
         if (!contraseniaValida) {
             return { success: false, error: 'Correo o contraseña incorrectos.' };
         }
 
-        // Generar código aleatorio de 6 dígitos
         const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiracion = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // Expira en 10 min
+        const expiracion = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
-        // Guardar código y expiración en Supabase
         const { error: updateError } = await supabase
             .from('Usuarios')
             .update({ codigo_2fa: codigo, expiracion_2fa: expiracion })
             .eq('id_usuario', usuario.id_usuario);
 
         if (updateError) {
-            console.error('Error al guardar código en BD:', updateError.message);
+            console.error('Error al guardar código 2FA en Supabase:', updateError.message);
             return { success: false, error: 'Error al generar el código de verificación.' };
         }
 
@@ -82,66 +79,40 @@ export async function solicitarLogin(email, contrasenia) {
     }
 }
 
-// 2. SEGUNDA FASE DE LOGIN: Validar el código ingresado
+// 2. VERIFICAR CÓDIGO INGRESADO
 export async function verificarCodigoLogin(email, codigoIngresado) {
     try {
-        console.log("--- INTENTO DE LOGIN ---");
-        console.log("Email recibido:", email);
-        console.log("Contraseña recibida:", contrasenia);
-
-        // 1. Buscar usuario
         const { data: usuario, error } = await supabase
             .from('Usuarios')
             .select('*')
             .eq('email', email)
             .maybeSingle();
 
-        if (error) {
-            console.log("Error de Supabase al buscar usuario:", error.message);
-            return { success: false, error: 'Error al consultar la base de datos.' };
+        if (error || !usuario || !usuario.codigo_2fa) {
+            return { success: false, error: 'Código inválido o sesión no iniciada.' };
         }
 
-        if (!usuario) {
-            console.log("El usuario NO existe en la base de datos para el email:", email);
-            return { success: false, error: 'Correo o contraseña incorrectos.' };
+        if (new Date() > new Date(usuario.expiracion_2fa)) {
+            return { success: false, error: 'El código ha expirado. Vuelve a iniciar sesión.' };
         }
 
-        console.log("Usuario encontrado en BD:", usuario.email);
-        console.log("Hash guardado en BD:", usuario.contrasena);
-
-        // 2. Validar contraseña
-        const contraseniaValida = await bcrypt.compare(contrasenia, usuario.contrasena);
-        console.log("¿La contraseña coincide con el Hash?:", contraseniaValida);
-
-        if (!contraseniaValida) {
-            return { success: false, error: 'Correo o contraseña incorrectos.' };
+        if (usuario.codigo_2fa !== codigoIngresado.trim()) {
+            return { success: false, error: 'El código ingresado es incorrecto.' };
         }
 
-        // 3. Generar código
-        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiracion = new Date(Date.now() + 10 * 60 * 1000).toISOString();
-
-        // 4. Guardar código en BD
-        const { error: updateError } = await supabase
+        await supabase
             .from('Usuarios')
-            .update({ codigo_2fa: codigo, expiracion_2fa: expiracion })
+            .update({ codigo_2fa: null, expiracion_2fa: null })
             .eq('id_usuario', usuario.id_usuario);
 
-        if (updateError) {
-            console.log("Error al guardar código 2FA en Supabase:", updateError.message);
-            return { success: false, error: 'Error al generar el código de verificación.' };
-        }
-
-        console.log("Código generado con éxito:", codigo);
-
         const { contrasena, ...usuarioSeguro } = usuario;
-        return { success: true, requiereCodigo: true, usuario: usuarioSeguro, codigo };
+        return { success: true, usuario: usuarioSeguro };
 
     } catch (error) {
-        console.log("Error inesperado en solicitarLogin:", error.message);
         return { success: false, error: error.message };
     }
 }
+
 export async function actualizarNombreUsuario(idUsuario, nuevoNombre) {
     try {
         const { data, error } = await supabase
