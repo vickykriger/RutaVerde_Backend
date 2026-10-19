@@ -9,6 +9,7 @@ export const getRegionesConPlantas = async () => {
       paises,
       descripcion,
       bioma,
+      Baldosas (count),
       Region_Planta (
         Plantas_Nativas (
           id_planta,
@@ -25,14 +26,25 @@ export const getRegionesConPlantas = async () => {
     return [];
   }
 
-  return data.map(region => ({
-    id_region: region.id_region,
-    nombre: region.nombre,
-    paises: region.paises,
-    descripcion: region.descripcion,
-    bioma: region.bioma,
-    plantas: region.Region_Planta ? region.Region_Planta.map(rp => rp.Plantas_Nativas) : []
-  }));
+  return data.map(region => {
+    // Calculamos el conteo total de baldosas registradas en la región
+    const conteoBaldosas = region.Baldosas && region.Baldosas.length > 0 
+      ? region.Baldosas[0].count 
+      : 0;
+
+    return {
+      id_region: region.id_region,
+      id: region.id_region,
+      nombre: region.nombre,
+      paises: region.paises,
+      descripcion: region.descripcion,
+      resumen: region.descripcion,
+      bioma: region.bioma,
+      contribuciones: conteoBaldosas,
+      arboles: conteoBaldosas,
+      plantas: region.Region_Planta ? region.Region_Planta.map(rp => rp.Plantas_Nativas) : []
+    };
+  });
 };
 
 export const getRegionesPorPlanta = async (nombrePlanta) => {

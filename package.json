@@ -19,7 +19,9 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "i": "^0.3.7",
-    "multer": "^2.2.0"
+    "multer": "^2.2.0",
+    "nodemailer": "^10.1.7",
+    "resend": "^6.34.1"
   },
   "repository": {
     "type": "git",

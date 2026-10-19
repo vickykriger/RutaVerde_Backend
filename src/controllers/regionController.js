@@ -1,26 +1,45 @@
-// src/controllers/regionController.js
 import { getRegionesConPlantas, getRegionesPorPlanta } from '../services/regionService.js';
 
+// Controller para obtener todas las ecorregiones (usado por el Mapa y la Lista)
 export const obtenerRegiones = async (req, res) => {
   try {
-    const regiones = await getRegionesConPlantas();
-    res.status(200).json(regiones);
+    const ecorregiones = await getRegionesConPlantas();
+    return res.status(200).json({
+      success: true,
+      data: ecorregiones
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error en obtenerRegiones:', error.message);
+    return res.status(500).json({
+      success: false,
+      error: 'Error al obtener las ecorregiones: ' + error.message
+    });
   }
 };
 
+// Controller para filtrar ecorregiones por el nombre de la planta (usado en SubirBaldosa)
 export const obtenerRegionesPorPlanta = async (req, res) => {
   try {
-    const { planta } = req.query; // Recibe el nombre de la planta por query string (?planta=...)
-    
-    if (!planta) {
-      return res.status(400).json({ success: false, error: "El nombre de la planta es requerido." });
+    // Soporta recibir la planta como query param ?planta=Ceibo o ?nombrePlanta=Ceibo
+    const nombrePlanta = req.query.planta || req.query.nombrePlanta || '';
+
+    if (!nombrePlanta) {
+      return res.status(200).json({
+        success: true,
+        data: []
+      });
     }
 
-    const regiones = await getRegionesPorPlanta(planta);
-    return res.status(200).json({ success: true, data: regiones });
+    const regiones = await getRegionesPorPlanta(nombrePlanta);
+    return res.status(200).json({
+      success: true,
+      data: regiones
+    });
   } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
+    console.error('Error en obtenerRegionesPorPlanta:', error.message);
+    return res.status(500).json({
+      success: false,
+      error: 'Error al obtener ecorregiones por planta: ' + error.message
+    });
   }
 };
