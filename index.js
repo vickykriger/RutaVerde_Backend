@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import authRoutes from './src/routes/authRoutes.js'; 
 import baldosaRoutes from './src/routes/baldosaRoutes.js'; 
 import regionRoutes from './src/routes/regionRoutes.js';
+import noticiaRoutes from './src/routes/noticiaRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,6 +39,7 @@ app.get(['/api/ecorregiones', '/api/ecoregiones'], (req, res) => {
 app.use('/api', authRoutes);
 app.use('/api/baldosas', baldosaRoutes); 
 app.use('/api', regionRoutes); // Provee /api/regiones o /api/ecorregiones según regionRoutes
+app.use('/api/Noticias', noticiaRoutes);
 
 // Arrancar el servidor
 app.listen(PORT, () => {

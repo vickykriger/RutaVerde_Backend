@@ -16,7 +16,7 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
             .from('Plantas_Nativas')
             .select('nombre') // Asegúrate de que tu columna se llame 'nombre' en Supabase
             .ilike('nombre', nombrePlanta.trim())
-            .maybeSingle(); // Devuelve el registro si lo encuentra, o null si no existe
+          .limit(1); // Devuelve un array con 1 elemento si existe, o vacío []
 
         if (errorValidacion) {
             return { success: false, error: `Error al validar la planta nativa: ${errorValidacion.message}` };

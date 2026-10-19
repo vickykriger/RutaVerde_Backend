@@ -1,9 +1,9 @@
 // src/routes/regionRoutes.js
 import { Router } from 'express';
-import { obtenerRegiones } from '../controllers/regionController.js';
+import { obtenerRegiones, obtenerRegionesPorPlanta } from '../controllers/regionController.js';
 
 const router = Router();
 
-router.get('/ecorregiones', obtenerRegiones);
-
+router.get('/regiones/ecorregiones', obtenerRegiones);
+router.get('/regiones/por-planta', obtenerRegionesPorPlanta);
 export default router;
