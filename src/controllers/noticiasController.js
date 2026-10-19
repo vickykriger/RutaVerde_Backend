@@ -1,4 +1,5 @@
 import * as noticiasService from '../services/noticiasService.js';
+import { mejorarNoticiaService } from '../services/iaService.js';
 
 export async function crearNoticia (req, res) {
   try {
@@ -34,6 +35,25 @@ export async function obtenerNoticias (req, res){
   try {
     const noticias = await noticiasService.obtenerNoticias();
     return res.json(noticias);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+export const mejorarNoticia = async (req, res) => {
+  try {
+    const { titulo, descripcion } = req.body;
+
+    if (!descripcion || descripcion.trim() === '') {
+      return res.status(400).json({ error: 'La descripción es obligatoria para poder mejorar la noticia.' });
+    }
+
+    const noticiaMejorada = await mejorarNoticiaService(titulo || '', descripcion);
+
+    return res.status(200).json({
+      mensaje: 'Noticia mejorada exitosamente',
+      data: noticiaMejorada
+    });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

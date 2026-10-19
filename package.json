@@ -12,6 +12,7 @@
     "dev": "vite"
   },
   "dependencies": {
+    "@google/genai": "^2.30.0",
     "@supabase/supabase-js": "^2.107.0",
     "axios": "^1.17.0",
     "bcrypt": "^6.0.0",
@@ -19,7 +20,9 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "i": "^0.3.7",
-    "multer": "^2.2.0"
+    "multer": "^2.2.0",
+    "ollama": "^0.6.4",
+    "openai": "^7.39.0"
   },
   "repository": {
     "type": "git",
