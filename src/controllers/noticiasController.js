@@ -39,7 +39,6 @@ export async function obtenerNoticias (req, res){
     return res.status(500).json({ error: error.message });
   }
 };
-
 export const mejorarNoticia = async (req, res) => {
   try {
     const { titulo, descripcion } = req.body;
@@ -52,7 +51,7 @@ export const mejorarNoticia = async (req, res) => {
 
     return res.status(200).json({
       mensaje: 'Noticia mejorada exitosamente',
-      data: noticiaMejorada
+      data: noticiaMejorada,
     });
   } catch (error) {
     return res.status(500).json({ error: error.message });

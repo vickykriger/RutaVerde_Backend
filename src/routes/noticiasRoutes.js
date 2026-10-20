@@ -1,7 +1,6 @@
 import { Router } from 'express';
-import { crearNoticia, obtenerNoticias } from '../controllers/noticiasController.js';
-import upload from '../middlewares/multer.js'; 
-import { mejorarNoticia } from '../controllers/noticiasController.js';
+import { crearNoticia, obtenerNoticias, mejorarNoticia } from '../controllers/noticiasController.js';
+import upload from '../middlewares/multer.js';
 
 const router = Router();
 

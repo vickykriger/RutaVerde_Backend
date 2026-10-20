@@ -9,8 +9,9 @@ export const crearNoticia = async ({ titulo, subtitulo, cuerpo, id_usuario, file
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
     const filePath = `noticias/${fileName}`;
 
+    // ⚠️ Se actualiza el nombre del bucket a 'imagenes_noticias'
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('noticias') // Asegúrate de tener un bucket llamado 'noticias' en Supabase
+      .from('imagenes_noticias') 
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
       });
@@ -19,9 +20,9 @@ export const crearNoticia = async ({ titulo, subtitulo, cuerpo, id_usuario, file
       throw new Error(`Error al subir la imagen: ${uploadError.message}`);
     }
 
-    // Obtenemos la URL pública del archivo subido
+    // Obtenemos la URL pública usando el bucket correcto
     const { data: publicUrlData } = supabase.storage
-      .from('noticias')
+      .from('imagenes_noticias')
       .getPublicUrl(filePath);
 
     url_foto = publicUrlData.publicUrl;
@@ -49,7 +50,7 @@ export const crearNoticia = async ({ titulo, subtitulo, cuerpo, id_usuario, file
   return data[0];
 };
 
-export async function obtenerNoticias (){
+export async function obtenerNoticias () {
   const { data, error } = await supabase
     .from('Noticias')
     .select('*')
