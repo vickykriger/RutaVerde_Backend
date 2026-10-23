@@ -15,162 +15,36 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 5000;
 
-// Middlewares
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
-// Endpoint para servir el archivo GeoJSON del mapa
-app.get(['/api/ecorregiones', '/api/ecoregiones'], (req, res) => {
-  try {
-    const rutaArchivo = path.join(__dirname, 'ecorregiones.json');
-    fs.readFile(rutaArchivo, 'utf8', (err, data) => {
-      if (err) {
-        console.error("Error leyendo ecorregiones.json:", err);
-        return res.status(500).json({ success: false, error: 'No se pudo leer el archivo del mapa' });
-      }
-      res.json(JSON.parse(data));
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Rutas de la API
-app.use('/api', authRoutes);
-app.use('/api/baldosas', baldosaRoutes); 
-app.use('/api', regionRoutes); // Provee /api/regiones o /api/ecorregiones según regionRoutes
-app.use('/api/Noticias', noticiaRoutes);
-
-// Arrancar el servidor
-app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(` Servidor backend corriendo en http://localhost:${PORT}`);
-    console.log(`==================================================`);
-});
-
-
-/* import { supabase } from './src/config/supabase.js';
-import {registro } from './registro.js';
-import {login} from './login.js';
-import { supabase } from './supabase.js';
-import { registro } from './registro.js';
-import { login } from './login.js';
-import { subirBaldosa } from './subirBaldosa.js';
-import cors from 'cors';
-import express from 'express';
-import multer from 'multer';
-import { obtenerRegiones } from './obtenerRegiones.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const app = express();
-const PORT = 5000;
-const upload = multer({ storage: multer.memoryStorage() });
-
-app.use(cors({
-  origin: 'http://localhost:5173'
-}));
-
-app.use(express.json());
-
-// --- ENDPOINT PARA SERVIR EL MAPA DE ECORREGIONES ---
+// --- ENDPOINT SERVIDOR DEL MAPA (GeoJSON) ---
 app.get('/api/ecorregiones', (req, res) => {
   try {
-    const rutaArchivo = path.join(__dirname, 'ecorregiones.json');
-    
-    // Leemos el archivo JSON y lo enviamos
+    let rutaArchivo = path.join(__dirname, 'ecorregiones.json');
+    if (!fs.existsSync(rutaArchivo)) {
+      rutaArchivo = path.join(__dirname, 'src', 'ecorregiones.json');
+    }
+
     fs.readFile(rutaArchivo, 'utf8', (err, data) => {
       if (err) {
         console.error("Error leyendo ecorregiones.json:", err);
-        return res.status(500).json({ success: false, error: 'No se pudo leer el archivo del mapa' });
+        return res.status(500).json({ success: false, error: 'No se pudo leer el archivo GeoJSON' });
       }
-      res.json(JSON.parse(data));
+      res.setHeader('Content-Type', 'application/json');
+      res.send(data);
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// --- REGISTRO ---
-app.post('/api/registro', async (req, res) => {
-  try {
-    const { nombre, email, contrasenia, region } = req.body;
-    const resultado = await registro(nombre, email, contrasenia, region);
+// Rutas API suplementarias
+app.use('/api', authRoutes);
+app.use('/api/baldosas', baldosaRoutes); 
+app.use('/api', regionRoutes); 
+app.use('/api/Noticias', noticiaRoutes);
 
-    if (resultado.success) {
-      return res.status(200).json(resultado);
-    } else {
-      return res.status(400).json(resultado);
-    }
-  } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// --- LOGIN ---
-app.post('/api/login', async (req, res) => {
-  try {
-    const { email, contrasenia } = req.body;
-    const usuarioLogueado = await login(email, contrasenia);
-    
-    if (usuarioLogueado) {
-      return res.status(200).json({ success: true, usuario: usuarioLogueado });
-    } else {
-      return res.status(401).json({ success: false, error: 'Credenciales inválidas' });
-    }
-  } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// --- SUBIR BALDOSA ---
-app.post('/api/baldosas', upload.single('imagen'), async (req, res) => {
-  try {
-    const { nombrePlanta, idRegion, tamanio, comentarios } = req.body;
-    const archivoImagen = req.file;
-
-    const resultado = await subirBaldosa(
-      nombrePlanta, 
-      parseInt(idRegion), 
-      parseFloat(tamanio), 
-      comentarios, 
-      archivoImagen
-    );
-
-    if (resultado.success) {
-      return res.status(200).json(resultado);
-    } else {
-      return res.status(500).json(resultado);
-    }
-  } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-
-// --- NOMBRES BALDOSAS ---
-app.get('/api/regiones', async (req, res) => {
-  try {
-    const resultado = await obtenerRegiones();
-    console.log("hola");
-    if (resultado.success) {
-      return res.status(200).json(resultado.data);
-    } else {
-      return res.status(500).json({ success: false, error: resultado.error });
-    }
-}); 
-  } catch (error) {
-    return res.status(500).json({ success: false, error: error.message });
-  }
-});
-*/
-
-// --- ENCENDIDO DEL SERVIDOR ---
 app.listen(PORT, () => {
-  console.log(`\n🚀 ¡Backend encendido con éxito!`);
-  console.log(`📡 Escuchando peticiones en: http://localhost:${PORT}`);
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
