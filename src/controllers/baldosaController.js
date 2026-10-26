@@ -1,6 +1,7 @@
 import * as baldosaService from '../services/baldosaService.js';
 
 
+
 export async function listarTodasLasBaldosas(req, res) {
     const resu = await baldosaService.obtenerTodasLasBaldosas();
     return res.status(resu.success ? 200 : 400).json(resu);
@@ -15,8 +16,9 @@ export async function cambiarEstado(req, res) {
     const resu = await baldosaService.actualizarEstadoBaldosa(id, aprobada);
     return res.status(resu.success ? 200 : 400).json(resu);
 }
-
 export async function crearBaldosa(req, res) {
+    console.log("--- 📥 BODY RECIBIDO EN BALDOSA ---", req.body);
+    console.log("--- 📁 ARCHIVO RECIBIDO ---", req.file ? req.file.originalname : 'SIN ARCHIVO');
     try {
         const { nombrePlanta, idRegion, tamanio, comentarios } = req.body;
         const archivoImagen = req.file;
@@ -45,6 +47,8 @@ export async function crearBaldosa(req, res) {
             comentarios ? comentarios.trim() : null,
             archivoImagen
         );
+
+        console.log("--- 📤 RESULTADO SERVICE ---", resultado);
         
         if (resultado.success) {
             return res.status(201).json(resultado);
@@ -55,3 +59,4 @@ export async function crearBaldosa(req, res) {
         return res.status(500).json({ success: false, error: error.message });
     }
 }
+

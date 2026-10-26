@@ -19,27 +19,32 @@ export async function obtenerTodasLasBaldosas() {
         if (error) return { success: false, error: error.message };
 
         // Mapeo de campos de BD -> Frontend
-        const aportesFormateados = data.map(b => {
-            let estadoTexto = 'pendiente';
-            if (b.aprobada === true) estadoTexto = 'aprobado';
-            if (b.aprobada === false) estadoTexto = 'rechazado';
+       const aportesFormateados = data.map(b => {
+    let estadoTexto = 'pendiente';
+    
+    if (b.aprobada === true) {
+        estadoTexto = 'aprobado';
+    } else if (b.aprobada === false) {
+        // Cambia esto según tu convención: 
+        // Si 'false' significa 'pendiente de aprobación', asigna 'pendiente'
+        estadoTexto = 'pendiente'; 
+    }
 
-            return {
-                id: b.id_baldosa,
-                id_baldosa: b.id_baldosa,
-                planta: b.nombrePlanta || 'Sin nombre',
-                nombrePlanta: b.nombrePlanta,
-                foto: b.url_imagen,
-                url_imagen: b.url_imagen,
-                tamanio: b.tamanio,
-                comentarios: b.comentarios,
-                estado: estadoTexto, // 'pendiente' | 'aprobado' | 'rechazado'
-                aprobada: b.aprobada,
-                usuario: b.Usuarios?.nombreC || 'Anónimo',
-                emailUsuario: b.Usuarios?.email || ''
-            };
-        });
-
+    return {
+        id: b.id_baldosa,
+        id_baldosa: b.id_baldosa,
+        planta: b.nombrePlanta || 'Sin nombre',
+        nombrePlanta: b.nombrePlanta,
+        foto: b.url_imagen,
+        url_imagen: b.url_imagen,
+        tamanio: b.tamanio,
+        comentarios: b.comentarios,
+        estado: estadoTexto,
+        aprobada: b.aprobada,
+        usuario: b.Usuarios?.nombreC || 'Anónimo',
+        emailUsuario: b.Usuarios?.email || ''
+    };
+});
         return { success: true, data: aportesFormateados };
     } catch (error) {
         return { success: false, error: error.message };
@@ -85,7 +90,8 @@ export async function obtenerBaldosasPendientes() {
                 aprobada,
                 Usuarios ( nombreC, email )
             `)
-            .or('aprobada.is.null,aprobada.eq.false');
+            .or('aprobada.is.null,aprobada.eq.false')
+            .order('id_baldosa', { ascending: false });
 
         if (error) return { success: false, error: error.message };
         return { success: true, data };
@@ -134,9 +140,9 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
 
         // CORRECCIÓN: Se comprueba la longitud del array (.length === 0)
         if (!plantaValida || plantaValida.length === 0) {
-            return { 
-                success: false, 
-                error: `No se pudo registrar. La planta "${nombrePlanta}" no existe en nuestro listado de plantas nativas.` 
+            return {
+                success: false,
+                error: `No se pudo registrar. La planta "${nombrePlanta}" no existe en nuestro listado de plantas nativas.`
             };
         }
 
@@ -175,12 +181,12 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
                     tamanio: Number(tamanio),
                     comentarios: comentarios ? comentarios.trim() : null,
                     url_imagen: urlImagen,
-                    id_usuario: idUsuario ? parseInt(idUsuario) : null, 
-                    nombrePlanta: nombrePlanta.trim(),
+                    id_usuario: idUsuario ? parseInt(idUsuario) : null,
+                    nombrePlanta: nombrePlanta.trim(), // <-- SI EN SUPABASE SE LLAMA 'nombre_planta', CAMBIALO A: nombre_planta: nombrePlanta.trim()
                     aprobada: false
                 }
             ])
-            .select(); 
+            .select();
 
         if (dbError) {
             return { success: false, error: `Error al guardar la baldosa en BD: ${dbError.message}` };
