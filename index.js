@@ -3,11 +3,13 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import 'dotenv/config'; 
 
 import authRoutes from './src/routes/authRoutes.js'; 
 import baldosaRoutes from './src/routes/baldosaRoutes.js'; 
 import regionRoutes from './src/routes/regionRoutes.js';
 import noticiaRoutes from './src/routes/noticiaRoutes.js';
+import usuarioRoutes from './src/routes/usuarioRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +17,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = 5000;
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    credentials: true
+}));
 app.use(express.json());
 
 // --- ENDPOINT SERVIDOR DEL MAPA (GeoJSON) ---
@@ -44,6 +49,7 @@ app.use('/api', authRoutes);
 app.use('/api/baldosas', baldosaRoutes); 
 app.use('/api', regionRoutes); 
 app.use('/api/Noticias', noticiaRoutes);
+app.use('/api/usuarios', usuarioRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);

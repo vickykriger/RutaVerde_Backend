@@ -1,5 +1,21 @@
 import * as baldosaService from '../services/baldosaService.js';
 
+
+export async function listarTodasLasBaldosas(req, res) {
+    const resu = await baldosaService.obtenerTodasLasBaldosas();
+    return res.status(resu.success ? 200 : 400).json(resu);
+}
+export async function listarBaldosasAprobadas(req, res) {
+    const resu = await baldosaService.obtenerBaldosasAprobadas();
+    return res.status(resu.success ? 200 : 400).json(resu);
+}
+export async function cambiarEstado(req, res) {
+    const { id } = req.params;
+    const { aprobada } = req.body; // true o false
+    const resu = await baldosaService.actualizarEstadoBaldosa(id, aprobada);
+    return res.status(resu.success ? 200 : 400).json(resu);
+}
+
 export async function crearBaldosa(req, res) {
     try {
         const { nombrePlanta, idRegion, tamanio, comentarios } = req.body;

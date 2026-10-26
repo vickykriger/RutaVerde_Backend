@@ -1,5 +1,116 @@
 import { supabase } from '../config/supabase.js';
 
+export async function obtenerTodasLasBaldosas() {
+    try {
+        const { data, error } = await supabase
+            .from('Baldosa')
+            .select(`
+                id_baldosa,
+                tamanio,
+                comentarios,
+                url_imagen,
+                nombrePlanta,
+                id_region,
+                aprobada,
+                Usuarios ( nombreC, email )
+            `)
+            .order('id_baldosa', { ascending: false });
+
+        if (error) return { success: false, error: error.message };
+
+        // Mapeo de campos de BD -> Frontend
+        const aportesFormateados = data.map(b => {
+            let estadoTexto = 'pendiente';
+            if (b.aprobada === true) estadoTexto = 'aprobado';
+            if (b.aprobada === false) estadoTexto = 'rechazado';
+
+            return {
+                id: b.id_baldosa,
+                id_baldosa: b.id_baldosa,
+                planta: b.nombrePlanta || 'Sin nombre',
+                nombrePlanta: b.nombrePlanta,
+                foto: b.url_imagen,
+                url_imagen: b.url_imagen,
+                tamanio: b.tamanio,
+                comentarios: b.comentarios,
+                estado: estadoTexto, // 'pendiente' | 'aprobado' | 'rechazado'
+                aprobada: b.aprobada,
+                usuario: b.Usuarios?.nombreC || 'Anónimo',
+                emailUsuario: b.Usuarios?.email || ''
+            };
+        });
+
+        return { success: true, data: aportesFormateados };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// --- Obtener solo baldosas APROBADAS (Para el Mapa y Vista Pública) ---
+export async function obtenerBaldosasAprobadas() {
+    try {
+        const { data, error } = await supabase
+            .from('Baldosa')
+            .select(`
+                id_baldosa,
+                tamanio,
+                comentarios,
+                url_imagen,
+                nombrePlanta,
+                id_region,
+                aprobada,
+                Usuarios ( nombreC, email )
+            `)
+            .eq('aprobada', true);
+
+        if (error) return { success: false, error: error.message };
+        return { success: true, data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// --- Obtener baldosas PENDIENTES (Para el Backoffice) ---
+export async function obtenerBaldosasPendientes() {
+    try {
+        const { data, error } = await supabase
+            .from('Baldosa')
+            .select(`
+                id_baldosa,
+                tamanio,
+                comentarios,
+                url_imagen,
+                nombrePlanta,
+                id_region,
+                aprobada,
+                Usuarios ( nombreC, email )
+            `)
+            .or('aprobada.is.null,aprobada.eq.false');
+
+        if (error) return { success: false, error: error.message };
+        return { success: true, data };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// --- Aprobar o Rechazar una Baldosa (Desde Backoffice) ---
+export async function actualizarEstadoBaldosa(idBaldosa, aprobada) {
+    try {
+        const { data, error } = await supabase
+            .from('Baldosa')
+            .update({ aprobada: aprobada })
+            .eq('id_baldosa', idBaldosa)
+            .select();
+
+        if (error) return { success: false, error: error.message };
+        return { success: true, data: data[0] };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// --- Subida de Baldosas corregida ---
 export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios, archivoImagen, idUsuario) {
     try {
         // 1. Validaciones básicas iniciales
@@ -11,31 +122,30 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
         }
 
         // 2. COMPARACIÓN CON LA TABLA Plantas_Nativas
-        // Buscamos si existe alguna planta nativa con ese nombre (sin importar mayúsculas/minúsculas)
         const { data: plantaValida, error: errorValidacion } = await supabase
             .from('Plantas_Nativas')
-            .select('nombre') // Asegúrate de que tu columna se llame 'nombre' en Supabase
+            .select('nombre')
             .ilike('nombre', nombrePlanta.trim())
-          .limit(1); // Devuelve un array con 1 elemento si existe, o vacío []
+            .limit(1);
 
         if (errorValidacion) {
             return { success: false, error: `Error al validar la planta nativa: ${errorValidacion.message}` };
         }
 
-        // 3. Si NO existe en la base de datos, rechazamos la subida inmediatamente
-        if (!plantaValida) {
+        // CORRECCIÓN: Se comprueba la longitud del array (.length === 0)
+        if (!plantaValida || plantaValida.length === 0) {
             return { 
                 success: false, 
                 error: `No se pudo registrar. La planta "${nombrePlanta}" no existe en nuestro listado de plantas nativas.` 
             };
         }
 
-        // 4. Si existe, ¡genial! El flujo continúa con normalidad...
-        const nombreArchivo = `${Date.now()}_${archivoImagen.originalname}`;
+        // 3. Subida de imagen al storage (se limpian caracteres especiales del nombre)
+        const nombreLimpio = archivoImagen.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+        const nombreArchivo = `${Date.now()}_${nombreLimpio}`;
         const nombreBucket = 'imagenes_baldosas';
 
-        // Subida de imagen al storage
-        const { data: storageData, error: storageError } = await supabase.storage
+        const { error: storageError } = await supabase.storage
             .from(nombreBucket)
             .upload(nombreArchivo, archivoImagen.buffer, {
                 contentType: archivoImagen.mimetype,
@@ -46,31 +156,28 @@ export async function subirBaldosa(nombrePlanta, idRegion, tamanio, comentarios,
             return { success: false, error: `Error al subir imagen al Storage: ${storageError.message}` };
         }
 
-        // Obtener URL pública
-        const { data: urlData, error: urlError } = await supabase.storage
+        // 4. Obtener URL pública
+        const { data: urlData } = supabase.storage
             .from(nombreBucket)
             .getPublicUrl(nombreArchivo);
-
-        if (urlError) {
-            return { success: false, error: `Error obteniendo la URL pública: ${urlError.message}` };
-        }
 
         const urlImagen = urlData?.publicUrl;
         if (!urlImagen) {
             return { success: false, error: 'No se pudo obtener la URL pública de la imagen.' };
         }
 
-        // Guardar baldosa en la BD
+        // 5. Guardar baldosa en la BD con estado 'aprobada: false' por defecto
         const { data: dbData, error: dbError } = await supabase
             .from('Baldosa')
             .insert([
                 {
-                    id_region: idRegion,
-                    tamanio: tamanio,
-                    comentarios: comentarios,
+                    id_region: parseInt(idRegion),
+                    tamanio: Number(tamanio),
+                    comentarios: comentarios ? comentarios.trim() : null,
                     url_imagen: urlImagen,
                     id_usuario: idUsuario ? parseInt(idUsuario) : null, 
-                    nombrePlanta: nombrePlanta
+                    nombrePlanta: nombrePlanta.trim(),
+                    aprobada: false
                 }
             ])
             .select(); 

@@ -1,5 +1,10 @@
 import * as noticiaService from '../services/noticiaService.js';
 
+export async function listarTodasLasNoticias(req, res) {
+    const resu = await noticiaService.obtenerTodasLasNoticias();
+    return res.status(resu.success ? 200 : 400).json(resu);
+}
+
 export async function publicarNoticia(req, res) {
     try {
         const { titulo, contenido } = req.body;
